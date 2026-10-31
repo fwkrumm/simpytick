@@ -11,6 +11,23 @@ from simpytick.timer import TimedEvent, timer
 class TestTimerLifecycle(unittest.TestCase):
     """Verify worker setup, cleanup, and iteration exits."""
 
+    def test_closed_status_pipe_preserves_abrupt_exit_error(self):
+        """Closed pipes on Windows and POSIX do not hide missing completion."""
+        for error in (BrokenPipeError("pipe ended"), EOFError()):
+            with self.subTest(error=type(error).__name__):
+                context = TimedEvent(s=0.01, n=-1, backend="thread")
+                reader, worker, event = Mock(), Mock(), Mock()
+                reader.poll.side_effect = error
+                worker.is_alive.return_value = False
+                worker.exitcode = 3
+                event.wait.return_value = False
+                with patch.object(context, "_status_reader", reader), \
+                        patch.object(context, "_worker", worker), \
+                        patch.object(context, "_event", event):
+                    with self.assertRaisesRegex(RuntimeError, "exitcode=3"):
+                        list(context)
+                reader.recv.assert_not_called()
+
     def test_invalid_backend_is_rejected(self):
         """Unknown backend names fail before any worker is constructed."""
         with self.assertRaisesRegex(ValueError, "Unsupported timer backend"):
@@ -59,7 +76,8 @@ class TestTimerLifecycle(unittest.TestCase):
             worker.start.side_effect = OSError("startup failed")
             context = TimedEvent(s=0.01, n=-1)
             with self.assertRaisesRegex(OSError, "startup failed"):
-                context.__enter__()
+                with context:
+                    self.fail("Worker startup should fail before entering the context")
             worker.terminate.assert_called_once_with()
             worker.join.assert_called_once_with()
             reader.close.assert_called()
@@ -75,7 +93,8 @@ class TestTimerLifecycle(unittest.TestCase):
             worker.start.side_effect = OSError("not started")
             context = TimedEvent(s=0.01, n=-1)
             with self.assertRaisesRegex(OSError, "not started"):
-                context.__enter__()
+                with context:
+                    self.fail("Worker startup should fail before entering the context")
             worker.join.assert_not_called()
             reader.close.assert_called_once_with()
             writer.close.assert_called_once_with()

@@ -55,4 +55,4 @@ class TestSleep(unittest.TestCase):
                     ValueError, "check_interval"
                 ):
                     simpytick.sleep(1, check_interval=interval)
-        sleep.assert_not_called()
+                sleep.assert_not_called()

@@ -64,6 +64,19 @@ class TestGrpcLoggerSetLevel(unittest.TestCase):
 class TestLoggingIsolation(unittest.TestCase):
     """Library imports coexist with application-owned logger configuration."""
 
+    def test_adapter_removes_underlying_handler(self):
+        """Removing a handler through the adapter updates the standard logger."""
+        standard = logging.Logger(_unique("remove"))
+        handler = logging.NullHandler()
+        standard.addHandler(handler)
+        try:
+            adapter = GrpcLogger(standard)
+            adapter.removeHandler(handler)
+            self.assertEqual(adapter.handlers, [])
+            self.assertEqual(standard.handlers, [])
+        finally:
+            handler.close()
+
     def test_import_preserves_global_logger_configuration(self):
         """A fresh interpreter keeps its logger class and custom level names."""
         code = "\n".join((

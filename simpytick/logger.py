@@ -31,6 +31,10 @@ class GrpcLogger(logging.LoggerAdapter):
         """Return the underlying logger's configured level."""
         return self.logger.level
 
+    def removeHandler(self, handler: logging.Handler) -> None:  # pylint: disable=invalid-name
+        """Match logging.Logger.removeHandler on the underlying logger."""
+        self.logger.removeHandler(handler)
+
     def iinfo(self, message, *args, **kwargs):
         """Log at INTERNAL_INFO level (7) --- framework lifecycle events, below DEBUG."""
         self.log(INTERNAL_INFO, message, *args, **kwargs)

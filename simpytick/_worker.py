@@ -5,7 +5,7 @@ def run_worker(target, args, kwargs, status):
     """Run a target and send a bounded, serializable terminal status."""
     try:
         target(*args, **kwargs)
-    except BaseException as error:
+    except BaseException as error:  # pylint: disable=broad-exception-caught
         status.send(("error", f"{type(error).__name__}: {str(error)[:1000]}"))
     else:
         status.send(("done", None))

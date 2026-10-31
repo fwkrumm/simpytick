@@ -12,7 +12,7 @@ def _fail_timer(*_args, **_kwargs):
 
 
 def _exit_timer(*_args, **_kwargs):
-    os._exit(3)
+    os._exit(3)  # pylint: disable=protected-access
 
 
 class TestTimerProcess(unittest.TestCase):

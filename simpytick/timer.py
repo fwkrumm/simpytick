@@ -225,7 +225,7 @@ class TimedEvent:  # pylint: disable=too-many-instance-attributes
             try:
                 if self._status_reader.poll():
                     self._worker_result = self._status_reader.recv()
-            except EOFError:
+            except (EOFError, BrokenPipeError):
                 pass
         if self._worker_result is not None and self._worker_result[0] == "error":
             raise RuntimeError(f"Timer worker failed: {self._worker_result[1]}")
