@@ -215,7 +215,7 @@ There is no full-matrix mandatory CI `needs` barrier before publishing, matching
 the reference. Require supported-version tests, lint, build and workflow audit
 checks through `master` branch protection; configure environment reviewers and
 allowed branches. Do not require floating `3.x` probes as support guarantees.
-See [.github/readme.md](.github/readme.md) for CI ownership, reference differences,
+See [.github/CI.md](.github/CI.md) for CI ownership, reference differences,
 and justified deviations.
 
 # Todos
