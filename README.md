@@ -154,15 +154,34 @@ standalone version: `0.0.1`. Original BSD-3-Clause license and attribution remai
 
 ## Development
 
-Run commands from this directory:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run
+from this repository's root. Python 3.14 matches the mandatory CI lint runtime:
 
 ```shell
-uv pip install -r requirements.txt
-uv run --with-requirements requirements.txt python -m unittest discover -s tests -p "test_*.py"
-uv run --with-requirements requirements-dev.txt python -m pylint --jobs=1 simpytick tests
+uv venv --python 3.14
+uv pip install -e . -r requirements-dev.txt
+```
+
+No environment activation is needed for `uv run`. The editable install makes
+local source changes available without reinstalling. Run the CI unit check
+(including coverage) and lint check:
+
+```shell
+uv run python .github/scripts/run_checks.py unit
+uv run python .github/scripts/run_checks.py lint
+```
+
+Run a single test module while iterating, then build and validate distributions:
+
+```shell
+uv run python -m unittest tests.test_sleep
 uv build
 uvx twine check dist/*
 ```
+
+Contributor and agent context is in [AGENTS.md](AGENTS.md). Add regression tests
+for behavior changes; test and lint before opening a pull request. Worker changes
+must also pass the spawned-process tests in the full unit suite.
 
 `requirements-dev.txt` includes `-r requirements.txt` and adds development-only
 `pylint==4.0.10` and `coverage>=7.10,<8`; these tools are not published as runtime
@@ -188,7 +207,7 @@ While nested in the original repository, GitHub does not discover these workflow
 	`windows-latest`, `macos-latest`, `ubuntu-22.04-arm`, and `ubuntu-24.04-arm`,
 	plus nonblocking `3.x` probes on the same five runners; coverage run/report
 	has no minimum.
-- `pylint.yml`: Python 3.14 / Ubuntu, Pylint 3.2.6, `--jobs=1 simpytick tests`.
+- `pylint.yml`: Python 3.14 / Ubuntu, Pylint 4.0.10, `--jobs=1 simpytick tests`.
 - `build.yml`: additional Ubuntu / Python 3.14 preflight, wheel/sdist build,
 	Twine checks, isolated installed-artifact smoke tests, and artifact upload.
 - `weekly-latest-python.yml`: Monday at 12:00 UTC and manual runs; nonblocking
