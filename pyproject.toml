@@ -1,0 +1,31 @@
+[build-system]
+requires = ["pdm-backend>=2.4"]
+build-backend = "pdm.backend"
+
+[project]
+name = "SimPyTick"
+dynamic = ["version"]
+description = "SimPyTick (Simple Python Tick): process- and thread-backed periodic timers."
+requires-python = ">=3.10"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Fabian Krumm", email = "ghub_fk@gmx.de" },
+]
+dependencies = [
+    "coloredlogs>=15.0",
+    "psutil>=5.0.0",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[tool.pdm.version]
+source = "file"
+path = "simpytick/_version.py"
+
+[tool.pdm.build]
+includes = ["simpytick/"]
+source-includes = ["tests/", ".github/", ".pylintrc", "requirements.txt", "requirements-dev.txt"]
