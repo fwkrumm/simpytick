@@ -2,9 +2,12 @@
 
 import threading
 import unittest
+from importlib import import_module
 from unittest.mock import patch
 
 import simpytick
+
+sleep_module = import_module("simpytick.sleep_2")
 
 
 class TestCompensatedSleep(unittest.TestCase):
@@ -13,9 +16,9 @@ class TestCompensatedSleep(unittest.TestCase):
     def test_deadlines_compensate_and_catch_up(self):
         """Work and oversleep shorten later waits, including zero waits."""
         sleeper = simpytick.sleep_2()
-        with patch(
-            "simpytick.sleep_2.time.monotonic", side_effect=[0, 0.1875, 0.5, 0.5, 0.5]
-        ), patch("simpytick.sleep_2.sleep", return_value=False) as wait:
+        with patch.object(
+            sleep_module.time, "monotonic", side_effect=[0, 0.1875, 0.5, 0.5, 0.5]
+        ), patch.object(sleep_module, "sleep", return_value=False) as wait:
             for _ in range(5):
                 self.assertFalse(sleeper(0.125))
         self.assertEqual(
@@ -27,9 +30,9 @@ class TestCompensatedSleep(unittest.TestCase):
         """Reset discards old deadlines; instances never share state."""
         first = simpytick.sleep_2()
         second = simpytick.sleep_2()
-        with patch(
-            "simpytick.sleep_2.time.monotonic", side_effect=[0, 10, 20]
-        ), patch("simpytick.sleep_2.sleep", return_value=False) as wait:
+        with patch.object(
+            sleep_module.time, "monotonic", side_effect=[0, 10, 20]
+        ), patch.object(sleep_module, "sleep", return_value=False) as wait:
             first(0.125)
             second(0.125)
             first.reset()
@@ -40,9 +43,9 @@ class TestCompensatedSleep(unittest.TestCase):
         """An interrupted wait discards its deadline before reuse."""
         sleeper = simpytick.sleep_2()
         stop = threading.Event()
-        with patch(
-            "simpytick.sleep_2.time.monotonic", side_effect=[0, 10]
-        ), patch("simpytick.sleep_2.sleep", side_effect=[True, False]) as wait:
+        with patch.object(
+            sleep_module.time, "monotonic", side_effect=[0, 10]
+        ), patch.object(sleep_module, "sleep", side_effect=[True, False]) as wait:
             self.assertTrue(sleeper(0.125, stop_event=stop, check_interval=0.005))
             wait.assert_called_once_with(0.125, stop_event=stop, check_interval=0.005)
             self.assertFalse(sleeper(0.125))
@@ -53,16 +56,16 @@ class TestCompensatedSleep(unittest.TestCase):
         sleeper = simpytick.sleep_2()
         stop = threading.Event()
         stop.set()
-        with patch("simpytick.sleep_2.sleep") as wait:
+        with patch.object(sleep_module, "sleep") as wait:
             self.assertTrue(sleeper(1, stop_event=stop))
         wait.assert_not_called()
 
     def test_invalid_arguments_do_not_advance_schedule(self):
         """Invalid durations or check intervals leave the next deadline unchanged."""
         sleeper = simpytick.sleep_2()
-        with patch(
-            "simpytick.sleep_2.time.monotonic", side_effect=[0, 0.1875]
-        ), patch("simpytick.sleep_2.sleep", return_value=False) as wait:
+        with patch.object(
+            sleep_module.time, "monotonic", side_effect=[0, 0.1875]
+        ), patch.object(sleep_module, "sleep", return_value=False) as wait:
             sleeper(0.125)
             for seconds in (-1, float("nan"), float("inf")):
                 with self.subTest(seconds=seconds), self.assertRaises(ValueError):
