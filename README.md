@@ -190,7 +190,7 @@ While nested in the original repository, GitHub does not discover these workflow
 	`3.x` unit probes on the same five runners and Ubuntu lint with latest Pylint.
 - `verify-workflows.yml`: reference-equivalent actionlint syntax/expression
 	checks and zizmor security audit.
-- `publish.yml`: pushes to `master`, not GitHub Release publication. A read-only
+- `pypi_publish.yml`: pushes to `master`, not GitHub Release publication. A read-only
 	build job runs preflight tests, build, Twine and wheel/sdist smoke checks, then
 	uploads validated artifacts. Its dependent `pypi-release` environment job
 	publishes them using OIDC with `skip-existing: true`, `print-hash: false`, and
@@ -205,7 +205,7 @@ the version source. PDM reads the same file for distribution metadata, and
 `simpytick.__version__` imports it at runtime.
 
 Before publishing, configure the PyPI project `SimPyTick` with a trusted
-publisher matching your GitHub owner/repository, workflow `publish.yml`, and
+publisher matching your GitHub owner/repository, workflow `pypi_publish.yml`, and
 environment `pypi-release`. Keep the workflow filename to preserve that identity
 and retain the environment URL `https://pypi.org/project/SimPyTick/`. Confirm PyPI
 name availability and select an unpublished version before pushing. Skipping

@@ -21,7 +21,7 @@ and intentional deviations.
 - Local `build.yml` already ran tests, built and Twine-checked wheel/sdist,
   smoke-tested both installations and uploaded artifacts. Reference has no
   equivalent build workflow, but does have its framework CLI smoke workflow.
-- Local `publish.yml` used GitHub Release publication, two jobs and OIDC with
+- Local publishing used GitHub Release publication, two jobs and OIDC with
   attestations, but lacked skip-existing/hash controls and post-publish tagging.
   Reference `pypi_publish.yml` uses master pushes, those controls and tags, in a
   single privileged job. The local publish environment already had its PyPI URL.
@@ -71,7 +71,7 @@ and intentional deviations.
 
 ## Publication and Justified Deviations
 
-`publish.yml` keeps its filename for the PyPI trusted publisher identity. Pushes
+`pypi_publish.yml` matches the configured PyPI trusted publisher identity. Pushes
 to `master`, not GitHub Releases, start a read-only build job: preflight unit
 tests, wheel/sdist build, Twine validation, isolated installed-artifact smoke
 checks and validated artifact upload. Only its dependent publish job receives
@@ -94,7 +94,7 @@ same-commit tags are no-ops, different-commit tags cause failure and are never m
 - Weekly gRPC, protobuf generation, examples, framework integration and CLI
   suites/dependencies are excluded because they are absent here. No fake suites
   or dependencies are added. Actual timer worker-process coverage stays in units.
-- Existing `test.yml`, `pylint.yml`, `build.yml` and `publish.yml` identities remain
+- Existing `test.yml`, `pylint.yml` and `build.yml` identities remain
   instead of merging into reference `ci.yml`, reducing branch-protection
   migration. Check job display names may change; review required status contexts.
 - Publication has no full-matrix CI `needs` barrier, matching the reference;
@@ -111,7 +111,7 @@ same-commit tags are no-ops, different-commit tags cause failure and are never m
 ## External Settings and Validation
 
 Configure the PyPI publisher with the actual GitHub owner/repository,
-`publish.yml` and `pypi-release`; verify project availability and use unpublished
+`pypi_publish.yml` and `pypi-release`; verify project availability and use unpublished
 versions. Skipping existing files supports retries, not artifact replacement.
 Protect `master` with mandatory supported-version test, lint and build checks.
 The path-filtered workflow audit should not be universally required unless your
@@ -142,7 +142,7 @@ PyPI/OIDC publication still require GitHub Actions validation.
 | `.github/workflows/test.yml` | Add ARM, coverage dispatch and nonblocking latest-Python probes. |
 | `.github/workflows/pylint.yml` | Shared pinned-Python lint action and development requirements. |
 | `.github/workflows/build.yml` | Shared setup; preserve preflight, build, metadata and artifact smoke gates. |
-| `.github/workflows/publish.yml` | Master pushes, latest stable Python, reference publish options, tag after publish. |
+| `.github/workflows/pypi_publish.yml` | Master pushes, latest stable Python, reference publish options, tag after publish. |
 | `.github/workflows/weekly-latest-python.yml` | Add reference weekly/manual latest-Python unit and lint probes. |
 | `.github/workflows/verify-workflows.yml` | Add reference syntax and security audits. |
 | `.github/actions/setup-python/action.yml` | Shared pinned tooling, interpreter output and cache policy. |
