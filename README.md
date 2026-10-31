@@ -3,6 +3,11 @@
 Simple Python Tick: periodic events using a spawn-isolated process or a thread.
 Requires Python 3.10 or later. Runtime dependencies: `psutil` and `coloredlogs`.
 
+## Release Status
+
+Releases before `1.0.0` are testing versions and may introduce breaking changes
+without a major version increment. Semantic versioning will begin with `1.0.0`.
+
 ## Installation
 
 ```shell
