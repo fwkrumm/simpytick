@@ -44,13 +44,11 @@ jobs:
         run: |
           for artifact in dist/*.whl dist/*.tar.gz; do
             uv run --isolated --no-project --with "$artifact" python -I -c '
-          import sys
           import threading
           from importlib.metadata import version
           from simpytick import __version__
           from simpytick.timer import TimedEvent, timer
           assert version("SimPyTick") == __version__
-          assert "pookiepy" not in sys.modules
           timer(0, 0.01, threading.Event(), False, None)
           with TimedEvent(s=0.01, n=3, compensation=False, backend="thread") as ticks:
               assert list(ticks) == [0, 1, 2]

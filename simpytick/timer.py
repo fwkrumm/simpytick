@@ -20,7 +20,7 @@ from simpytick.sleep import sleep
 
 # Spawn prevents child code from retaining copied parent state. On POSIX its
 # launcher may still briefly fork, so use TimedEvent(backend="thread") after
-# libraries such as gRPC have started threads or opened poller descriptors.
+# libraries have started threads or opened poller descriptors.
 _SPAWN_CONTEXT = multiprocessing.get_context("spawn")
 
 
@@ -141,7 +141,7 @@ class TimedEvent:  # pylint: disable=too-many-instance-attributes
         Number of ticks (cycles) to run.
     backend : {"process", "thread"}
         ``"process"`` preserves process-isolated timing. ``"thread"`` avoids
-        creating a child after libraries such as gRPC have started threads.
+        creating a child after libraries have started worker threads.
 
     Notes
     -----

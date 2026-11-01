@@ -48,7 +48,7 @@ creation behind `if __name__ == "__main__":` in an importable script. Both backe
 retain normal OS priority; the package does not request real-time scheduling or
 require priority-changing privileges. Failed startup cleans up any started worker
 and its status connections. Use `backend="thread"` to
-avoid child creation after libraries such as gRPC start threads or open pollers.
+avoid child creation after libraries start threads or open pollers.
 
 Background failures raise `RuntimeError` during iteration or normal context exit,
 even without a logger. Reported exceptions include their type and a bounded message;
@@ -130,24 +130,16 @@ wake-up times and immediate cancellation are not guaranteed.
 
 ## Migration Scope
 
-The timer module originated in pookiepy. Its digit-based compensation has been
-replaced by persistent monotonic deadlines. The obsolete digit-compensation
-helpers and constants have been removed. `GrpcLogger` is now a
-`logging.LoggerAdapter`, not a `logging.Logger` subclass. `get_logger()` wraps
-standard named loggers, including those created before the package was imported.
-Its custom methods (`iinfo()` and `idebug()`), handler access, level access, and
-adapter caching remain available. Imports do not change the global logger class
-or register level names; explicit `get_logger()` calls register custom levels and
-configure output. The package installs a `NullHandler` for application-controlled
-logging. The factory still defaults to file output under `grpcLogs` in the system
-temporary directory. No dependency on pookiepy, gRPC, or protobuf remains.
+`SimPyTickLogger` adapts standard named loggers and supports the custom `iinfo()`
+and `idebug()` methods, handler and level access, and adapter caching. Imports do
+not change the global logger class or register level names; explicit
+`get_logger()` calls register custom levels and configure output. The package
+installs a `NullHandler` for application-controlled logging. By default, file
+output goes to `simpytickLogs` under the system temporary directory.
 
-The timer worker and lifecycle tests and logger tests are copied with namespace
-adjustments. Timer API tests are retained; the gRPC broadcast integration test
-is excluded because it exercises the original framework, not the timer package.
-Spawn-worker tests exercise the actual process without mocking priority setup.
-Regression tests cover validation, startup cleanup, worker failures, logger import
-isolation, and matching runtime/distribution versions.
+Tests cover timer APIs, lifecycle and worker failures, logger import isolation,
+and matching runtime and distribution versions. Spawn-worker tests exercise
+actual processes without mocking priority setup.
 
 Distribution name: `SimPyTick`. Import namespace: `simpytick`. Initial
 standalone version: `0.0.1`. Original BSD-3-Clause license and attribution remain.

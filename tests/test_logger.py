@@ -2,12 +2,12 @@
 Unit tests for simpytick/logger.py
 
 Tests cover branches missed in previous coverage runs:
-- GrpcLogger.setLevel propagates level to all attached handlers (line 34)
+- SimPyTickLogger.setLevel propagates level to all attached handlers (line 34)
 - get_logger custom log_dir else-branch (line 90)
 - get_logger use_colored_output=False StreamHandler path (lines 126-129)
 - get_logger file-logging PermissionError/OSError warning path (lines 153-154)
 - get_logger returns cached logger on second call (hasHandlers guard)
-- GrpcLogger wraps the standard logger without changing the global logger class
+- SimPyTickLogger wraps the standard logger without changing the global logger class
 """
 import logging
 import shutil
@@ -21,7 +21,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent))  # pylint: disable=wrong-import-position
 
-from simpytick.logger import INTERNAL_DEBUG, INTERNAL_INFO, GrpcLogger, get_logger
+from simpytick.logger import INTERNAL_DEBUG, INTERNAL_INFO, SimPyTickLogger, get_logger
 
 
 def _unique(prefix: str = "test") -> str:
@@ -36,8 +36,8 @@ def _close_handlers(logger: logging.Logger) -> None:
         logger.removeHandler(handler)
 
 
-class TestGrpcLoggerSetLevel(unittest.TestCase):
-    """Tests for GrpcLogger.setLevel() handler propagation."""
+class TestSimPyTickLoggerSetLevel(unittest.TestCase):
+    """Tests for SimPyTickLogger.setLevel() handler propagation."""
 
     def test_set_level_propagates_to_all_handlers(self):
         """setLevel() updates every attached handler to the same level."""
@@ -57,7 +57,7 @@ class TestGrpcLoggerSetLevel(unittest.TestCase):
 
     def test_set_level_no_handlers_does_not_raise(self):
         """setLevel() on a handlerless logger adapter does not raise."""
-        logger = GrpcLogger(logging.getLogger(_unique("bare")))
+        logger = SimPyTickLogger(logging.getLogger(_unique("bare")))
         logger.setLevel(logging.WARNING)  # must not raise
 
 
@@ -70,7 +70,7 @@ class TestLoggingIsolation(unittest.TestCase):
         handler = logging.NullHandler()
         standard.addHandler(handler)
         try:
-            adapter = GrpcLogger(standard)
+            adapter = SimPyTickLogger(standard)
             adapter.removeHandler(handler)
             self.assertEqual(adapter.handlers, [])
             self.assertEqual(standard.handlers, [])
@@ -111,7 +111,7 @@ class TestLoggingIsolation(unittest.TestCase):
 
     def test_custom_levels_use_standard_logging(self):
         """The adapter exposes custom methods without requiring a logger subclass."""
-        adapter = GrpcLogger(logging.getLogger(_unique("levels")))
+        adapter = SimPyTickLogger(logging.getLogger(_unique("levels")))
         adapter.setLevel(INTERNAL_DEBUG)
         with patch.object(adapter.logger, "log") as log:
             adapter.iinfo("info %s", "value")
@@ -143,14 +143,14 @@ class TestGetLoggerCustomDir(unittest.TestCase):
                 _close_handlers(logger)
             shutil.rmtree(tmpdir, ignore_errors=True)
 
-    def test_custom_log_dir_returns_grpc_logger(self):
-        """get_logger with log_dir still returns a GrpcLogger instance."""
+    def test_custom_log_dir_returns_simpytick_logger(self):
+        """get_logger with log_dir still returns a SimPyTickLogger instance."""
         tmpdir = tempfile.mkdtemp()
         logger = None
         try:
             logger = get_logger(name=_unique("customdir_type"), log_dir=tmpdir,
                                 console_log_level=None)
-            self.assertIsInstance(logger, GrpcLogger)
+            self.assertIsInstance(logger, SimPyTickLogger)
         finally:
             if logger:
                 _close_handlers(logger)

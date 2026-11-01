@@ -1,5 +1,5 @@
 """
-Logging utilities: ``GrpcLogger`` adapter with project-specific levels and
+Logging utilities: ``SimPyTickLogger`` adapter with project-specific levels and
 a ``get_logger`` factory that attaches console + rotating file handlers.
 """
 import logging
@@ -15,7 +15,7 @@ INTERNAL_DEBUG = 5
 INTERNAL_INFO = 7
 
 
-class GrpcLogger(logging.LoggerAdapter):
+class SimPyTickLogger(logging.LoggerAdapter):
     """Adapt a standard logger with custom levels without changing its class."""
 
     def __init__(self, logger: logging.Logger | str):
@@ -52,7 +52,7 @@ class GrpcLogger(logging.LoggerAdapter):
             handler.setLevel(level)
 
 
-_ADAPTERS: dict[str, GrpcLogger] = {}
+_ADAPTERS: dict[str, SimPyTickLogger] = {}
 
 
 def get_logger(
@@ -62,7 +62,7 @@ def get_logger(
     log_dir: str = None,
     file_log_level: int | None = INTERNAL_DEBUG,
     use_colored_output: bool = True
-) -> GrpcLogger:
+) -> SimPyTickLogger:
     """
     Get or create a configured logger instance.
 
@@ -81,13 +81,13 @@ def get_logger(
 
     Returns
     -------
-    GrpcLogger
+    SimPyTickLogger
         Adapter around a configured standard logger. Importing this module does
         not register a global logger class or custom level names; level names
         are registered only when this factory is explicitly called.
     """
     logger = logging.getLogger(name)
-    adapter = _ADAPTERS.setdefault(name, GrpcLogger(logger))
+    adapter = _ADAPTERS.setdefault(name, SimPyTickLogger(logger))
     logging.addLevelName(INTERNAL_DEBUG, "INTERNAL_DEBUG")
     logging.addLevelName(INTERNAL_INFO, "INTERNAL_INFO")
 
@@ -107,7 +107,7 @@ def get_logger(
 
     # Determine log directory
     if log_dir is None:
-        log_location = Path(tempfile.gettempdir()) / "grpcLogs"
+        log_location = Path(tempfile.gettempdir()) / "simpytickLogs"
     else:
         log_location = Path(log_dir)
 
